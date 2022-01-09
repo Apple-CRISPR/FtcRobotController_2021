@@ -37,6 +37,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.AcRobot;
+import org.firstinspires.ftc.teamcode.experimental.Recorder;
 import org.firstinspires.ftc.teamcode.math.Constants;
 import org.firstinspires.ftc.teamcode.math.Vector;
 
@@ -73,6 +74,8 @@ public class AcRobotTest extends OpMode
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
+        Recorder rec = new Recorder();
+        rec.Play();
     }
 
     /*

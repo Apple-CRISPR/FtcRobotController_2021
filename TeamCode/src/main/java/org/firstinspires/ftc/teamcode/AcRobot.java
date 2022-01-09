@@ -66,6 +66,8 @@ public class AcRobot {
         leftRear.setMode(   DcMotor.RunMode.RUN_USING_ENCODER );
         rightRear.setMode(  DcMotor.RunMode.RUN_USING_ENCODER );
 
+
+
     }
 
     public void DriveTo(Vector position, double duration){
