@@ -12,8 +12,15 @@ public class blueStorageParkMain extends LinearOpMode {
      * Parks in the storage unit */
 
 
+
     @Override
     public void runOpMode() throws InterruptedException {
 
+
+        waitForStart();
+        while(opModeIsActive()) {
+
+
+        }
     }
 }

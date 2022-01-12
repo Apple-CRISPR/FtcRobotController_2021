@@ -12,15 +12,23 @@ import org.firstinspires.ftc.robotcontroller.external.samples.SensorDigitalTouch
 
 public class HardwareClass {
 
-    // DcMotors
+    //Drive Motors
     public DcMotorEx frontRight;
     public DcMotorEx backRight;
     public DcMotorEx frontLeft;
     public DcMotorEx backLeft;
+
+    //Carousel spinner
     public DcMotor carousel;
+
+    //Arm motors
     public DcMotorEx armJoint;
+    public DcMotorEx armBase;
+
 
     public DigitalChannel grabberTouch = null;
+
+    // Limit switches
     public DigitalChannel limitFront = null;
     public DigitalChannel limitRear = null;
 
@@ -30,6 +38,7 @@ public class HardwareClass {
 
 
     HardwareMap hardwareMap = null;
+
     public ElapsedTime runTime = new ElapsedTime();
 
     public HardwareClass() {
@@ -47,6 +56,7 @@ public class HardwareClass {
         backRight = hwMap.get(DcMotorEx.class, "rightRear");
         carousel = hwMap.get(DcMotor.class, "carousel");
         armJoint = hwMap.get(DcMotorEx.class, "armJoint");
+        armBase = hwMap.get(DcMotorEx.class, "armBase");
 
         //Servos
         grabberLeft = hwMap.get(CRServo.class, "left");
@@ -82,6 +92,7 @@ public class HardwareClass {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         armJoint.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        armBase.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
     }
