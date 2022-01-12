@@ -105,9 +105,19 @@ public class AcRobot {
 
         basePos-=baseOffset;
 
+        double currentPos = armBase.getCurrentPosition()/(-1.15);
+        double vel = basePos-currentPos;
+
+        if(limitFront.getState() && vel <= 0){
+            basePos = currentPos;
+        }
+        if(limitRear.getState() && vel > 0){
+            basePos = currentPos;
+        }
+
         //System.out.println(basePos);
 
-        armBase.setTargetPosition((int)basePos);
+        armBase.setTargetPosition((int)(basePos*(-1.5)));
         armBase.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         //armJoint.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armBase.setPower(1);
@@ -162,6 +172,4 @@ public class AcRobot {
         rightRear.setPower(v4);
 
     }
-
-
 }

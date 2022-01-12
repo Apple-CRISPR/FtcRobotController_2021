@@ -62,8 +62,8 @@ public class AcRobotTest extends OpMode
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private AcRobot robot = new AcRobot();
-    double x = 0;
-    double y = 1000;
+    double x = 100;
+    double y = 100;
 
     /*
      * Code to run ONCE when the driver hits INIT
