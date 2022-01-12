@@ -20,45 +20,60 @@ public class AcRobot {
     public DcMotorEx leftRear = null;
     public DcMotorEx rightRear = null;
 
-    // DcMotor
+    //Carousel spinner
     public DcMotor carousel;
 
+    //Arm motors
+    public DcMotorEx armJoint;
+    public DcMotorEx armBase;
+
+
     public DigitalChannel grabberTouch = null;
+
+    // Limit switches
     public DigitalChannel limitFront = null;
     public DigitalChannel limitRear = null;
+
 
     /* servos */
     public CRServo grabberRight = null;
     public CRServo grabberLeft = null;
 
+    public HardwareMap hardwareMap;
 
     public AcRobot(){
+
     }
 
     //run this before anything else
-    public void initHardware(HardwareMap hardwareMap){
+    public void initHardware(HardwareMap hwMap){
+
+        hardwareMap = hwMap;
 
         //initialize drive motors
-        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
-        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
-        leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
-        rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
+        leftFront = hwMap.get(DcMotorEx.class, "leftFront");
+        rightFront = hwMap.get(DcMotorEx.class, "rightFront");
+        leftRear = hwMap.get(DcMotorEx.class, "leftRear");
+        rightRear = hwMap.get(DcMotorEx.class, "rightRear");
+        carousel = hwMap.get(DcMotor.class, "carousel");
+        armJoint = hwMap.get(DcMotorEx.class, "armJoint");
+        armBase = hwMap.get(DcMotorEx.class, "armBase");
 
         //set two of the motors to be reversed
         rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Servos
-        grabberLeft = hardwareMap.get(CRServo.class, "left");
-        grabberRight = hardwareMap.get(CRServo.class, "right");
+        grabberLeft = hwMap.get(CRServo.class, "left");
+        grabberRight = hwMap.get(CRServo.class, "right");
 
         //Sensors
-        limitFront = hardwareMap.get(DigitalChannel.class, "armLimitFront");
+        limitFront = hwMap.get(DigitalChannel.class, "armLimitFront");
         limitFront.setMode(DigitalChannel.Mode.INPUT);
-        limitRear = hardwareMap.get(DigitalChannel.class, "armLimitRear");
+        limitRear = hwMap.get(DigitalChannel.class, "armLimitRear");
         limitRear.setMode(DigitalChannel.Mode.INPUT);
 
-        grabberTouch = hardwareMap.get(DigitalChannel.class, "grabberTouch");
+        grabberTouch = hwMap.get(DigitalChannel.class, "grabberTouch");
         grabberTouch.setMode(DigitalChannel.Mode.INPUT);
 
         leftFront.setMode(  DcMotor.RunMode.RUN_USING_ENCODER );
