@@ -57,7 +57,7 @@ public class Segment {
 
         //double angle = Math.round(radToDeg(showAngle));
         double setAngle = radToDeg(showAngle)/180;
-        System.out.println(setAngle);
+        //System.out.println(setAngle);
         showAngle = angle;
     }
     public double radToDeg(double radians)

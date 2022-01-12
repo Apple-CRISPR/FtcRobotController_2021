@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.arm.Arm;
 import org.firstinspires.ftc.teamcode.math.Constants;
 import org.firstinspires.ftc.teamcode.math.Vector;
 
@@ -30,6 +31,11 @@ public class AcRobot {
     /* servos */
     public CRServo grabberRight = null;
     public CRServo grabberLeft = null;
+
+    public DcMotorEx armBase = null;
+    public DcMotorEx armJoint = null;
+
+    public Arm arm = null;
 
 
     public AcRobot(){
@@ -66,8 +72,50 @@ public class AcRobot {
         leftRear.setMode(   DcMotor.RunMode.RUN_USING_ENCODER );
         rightRear.setMode(  DcMotor.RunMode.RUN_USING_ENCODER );
 
+        armBase = hardwareMap.get(DcMotorEx.class, "armBase");
+        armJoint = hardwareMap.get(DcMotorEx.class, "armJoint");
 
+        // set modes for arm motors
+        armBase.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armJoint.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        //initialize arm
+        DcMotorEx armMotors[] = {armBase, armJoint};
+        arm = new Arm(armMotors, 100);
+
+        // set arm segment starting positions
+    }
+
+    // converts angle to ticks for motor
+    public double ToTicks(double angle, double motorTPR){
+        return (angle/360)*motorTPR;
+    }
+
+    public void setArmPosition(Vector position){
+        arm.setTarget(position);
+    }
+
+    public void update(){
+        arm.update();
+
+        double basePos = ToTicks(radToDeg(arm.segments[0].showAngle), Constants.motor5202TPR);
+        double jointPos = ToTicks(radToDeg(arm.segments[0].showAngle), Constants.coreHexTPR);
+        double baseOffset = ToTicks(130, Constants.motor5202TPR);
+        double jointOffset = ToTicks(130, Constants.coreHexTPR);
+
+        basePos-=baseOffset;
+
+        //System.out.println(basePos);
+
+        armBase.setTargetPosition((int)basePos);
+        armBase.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //armJoint.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armBase.setPower(1);
+    }
+    public double radToDeg(double radians)
+    {
+        double pi = Math.PI;
+        return radians * (180/pi);
     }
 
     public void DriveTo(Vector position, double duration){
