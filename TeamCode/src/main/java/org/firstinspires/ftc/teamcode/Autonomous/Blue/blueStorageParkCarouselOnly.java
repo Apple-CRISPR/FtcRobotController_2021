@@ -4,8 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.AcRobot;
+
 @Autonomous (name = "blueStorageParkCarouselOnly", group = "Autonomous")
-@Disabled
 public class blueStorageParkCarouselOnly extends LinearOpMode {
 
     /** This program goes and spins the carousel
@@ -15,9 +16,14 @@ public class blueStorageParkCarouselOnly extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
+        AcRobot robot = new AcRobot();
+        robot.initHardware(hardwareMap);
 
-        //Comments
-        //Comments
+        waitForStart();
+        while(opModeIsActive()) {
+
+
+        }
 
 
     }

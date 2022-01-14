@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Autonomous.Blue;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.AcRobot;
+
 @Autonomous (name = "blueStorageParkMain", group = "Autonomous")
 public class blueStorageParkMain extends LinearOpMode {
 
@@ -15,6 +17,9 @@ public class blueStorageParkMain extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        AcRobot robot = new AcRobot();
+        robot.initHardware(hardwareMap);
 
 
         waitForStart();
