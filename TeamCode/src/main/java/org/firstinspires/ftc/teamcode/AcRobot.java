@@ -14,21 +14,28 @@ import org.firstinspires.ftc.teamcode.math.Constants;
 import org.firstinspires.ftc.teamcode.math.Vector;
 
 public class AcRobot {
+
+    /** autonomous movement constants **/
+    public static final double encoderResolution = 537.7; // Ticks per revolution
+    public static final double wheelDiameter = 96; // mm
+    public static final double rotationDistance = 238; // cm
+    public static final double strafeModifier = 1.125;
+    public static final double mmPerTick = (Math.PI*wheelDiameter)/encoderResolution;
+    // public static final double MOTOR_PWR =
+
+
     // movement
     public DcMotorEx leftFront = null;
     public DcMotorEx rightFront = null;
     public DcMotorEx leftRear = null;
     public DcMotorEx rightRear = null;
 
-    // autonomous movement
-    final double encoderResolution = 537.7; // Ticks per revolution
-    final double wheelDiameter = 96; // mm
-    final double rotationDistance = 238; // cm
-    final double strafeModifier = 1.125;
-    final double mmPerTick = (Math.PI*wheelDiameter)/encoderResolution;
+    //arm motors
+    public DcMotorEx armJoint = null;
+    public DcMotorEx armBase = null;
 
-    // DcMotor
-    public DcMotor carousel;
+    // DcMotor (Carousel spinner)
+    public DcMotor carousel = null;
 
     public DigitalChannel grabberTouch = null;
     public DigitalChannel limitFront = null;
@@ -50,6 +57,12 @@ public class AcRobot {
         rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
         leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
         rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
+
+        //Arm motors
+        armJoint = hardwareMap.get(DcMotorEx.class, "armJoint");
+        armBase = hardwareMap.get(DcMotorEx.class, "armBase");
+
+        carousel = hardwareMap.get(DcMotor.class, "carousel");
 
         //set two of the motors to be reversed
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -117,12 +130,13 @@ public class AcRobot {
         rightFront.setPower(v2);
         leftRear.setPower(v3);
         rightRear.setPower(v4);
+        
 
     }
 
-    // autonomous driving
-    // drive forward/backward
-    void drive(double cm, double power) {
+    /** autonomous driving **/
+    /** drive forward/backward **/
+    public void drive(double cm, double power) {
         double ticks = cmToTick(cm);
         moveMotor(leftFront, (int)ticks, power);
         moveMotor(rightFront, (int)ticks, power);
@@ -131,7 +145,8 @@ public class AcRobot {
         while(leftFront.isBusy() ||  rightFront.isBusy() || leftRear.isBusy() || rightRear.isBusy()) {}
     }
 
-    void strafe(double cm, double power) {
+    /** strafe **/
+    public void strafe(double cm, double power) {
         double ticks = -cmToTick(cm)*strafeModifier;
         moveMotor(leftFront, (int)-ticks, power);
         moveMotor(rightFront, (int)ticks, power);
@@ -140,7 +155,8 @@ public class AcRobot {
         while(leftFront.isBusy() ||  rightFront.isBusy() || leftRear.isBusy() || rightRear.isBusy()) {}
     }
 
-    void rotate(double deg, double power) {
+    /** rotate **/
+    public void rotate(double deg, double power) {
         double ticks = -cmToTick(rotationDistance/360*deg);
         moveMotor(leftFront, (int)-ticks, power);
         moveMotor(rightFront, (int)ticks, power);
@@ -149,15 +165,19 @@ public class AcRobot {
         while(leftFront.isBusy() ||  rightFront.isBusy() || leftRear.isBusy() || rightRear.isBusy()) {}
     }
 
-    void moveMotor(DcMotor motor, int ticks, double power) {
+    //Used inside of autonomous drive methods
+    private void moveMotor(DcMotor motor, int ticks, double power) {
         int postion = motor.getCurrentPosition();
         motor.setTargetPosition(postion + ticks);
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motor.setPower(power);
     }
 
+    //
+
+
     // unit conversions
-    double inToCm(double in) { return in*2.54; }
-    double ftToCm(double ft) { return ft*12*2.54; }
+    public double inToCm(double in) { return in*2.54; }
+    public double ftToCm(double ft) { return ft*12*2.54; }
     double cmToTick(double cm) { return cm*10/mmPerTick; }
 }
