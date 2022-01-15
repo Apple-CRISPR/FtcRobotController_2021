@@ -31,9 +31,11 @@ public class redStorageParkCarouselOnly extends LinearOpMode {
         robot.drive(DistanceUnit.CM.fromInches(-18), MOTOR_PWR);
         //robot.drive(DistanceUnit.CM.fromInches(-2), 0.25);
 
-        robot.carousel.setPower(-0.75);
-        sleep(3200);
-        robot.carousel.setPower(0);
+            robot.carousel.setPower(-0.75);
+            sleep(2200);
+            robot.carousel.setPower(-1);
+            sleep(1000);
+            robot.carousel.setPower(0);
 
         robot.strafe(DistanceUnit.CM.fromInches(-23.2), MOTOR_PWR);
         robot.drive(DistanceUnit.CM.fromInches(-6), MOTOR_PWR);

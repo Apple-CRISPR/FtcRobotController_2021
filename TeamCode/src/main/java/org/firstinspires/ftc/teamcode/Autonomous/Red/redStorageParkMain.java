@@ -7,6 +7,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.AcRobot;
 
 @Autonomous (name = "redStorageParkMain", group = "Autonomous")
+@Disabled
 public class redStorageParkMain extends LinearOpMode {
 
     /** This program detects the position of the duck

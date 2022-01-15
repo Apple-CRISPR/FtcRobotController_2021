@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.Autonomous.Blue;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.AcRobot;
 
 @Autonomous (name = "blueStorageParkMain", group = "Autonomous")
+@Disabled
 public class blueStorageParkMain extends LinearOpMode {
 
     /** This program detects the position of the duck

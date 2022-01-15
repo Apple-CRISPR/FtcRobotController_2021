@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.HardwareClass;
 @TeleOp (name = "test1", group = "TeleOp")
 public class test1 extends OpMode {
 
-    AcRobot robot = new AcRobot();
+    private AcRobot robot = new AcRobot();
 
 
 
