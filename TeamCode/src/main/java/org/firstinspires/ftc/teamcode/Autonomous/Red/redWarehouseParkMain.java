@@ -14,7 +14,7 @@ public class redWarehouseParkMain extends LinearOpMode {
     /** This program goes and spins the carousel
      * Parks in the storage unit */
 
-    private final double MOTOR_PWR = 0.4;
+    private final double MOTOR_PWR = AcRobot.autoMotorPower;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -25,13 +25,15 @@ public class redWarehouseParkMain extends LinearOpMode {
 
         waitForStart();
 
-        // locate duck position
+        /** locate duck position **/
+
         sleep(10000);
 
         robot.strafe(DistanceUnit.CM.fromInches(-22), MOTOR_PWR);
         robot.drive(DistanceUnit.CM.fromInches(12), MOTOR_PWR);
 
-        // place box on shipping hub
+        /** place box on shipping hub **/
+
         sleep(6000);
 
         robot.rotate(90, MOTOR_PWR);

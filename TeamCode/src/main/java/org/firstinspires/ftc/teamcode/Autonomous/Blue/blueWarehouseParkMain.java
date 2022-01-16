@@ -25,13 +25,13 @@ public class blueWarehouseParkMain extends LinearOpMode {
 
         waitForStart();
 
-        // Locate duck position
+        /** Locate duck position **/
         sleep(10000);
 
         robot.strafe(DistanceUnit.CM.fromInches(22), MOTOR_PWR);
         robot.drive(DistanceUnit.CM.fromInches(12), MOTOR_PWR);
 
-        // place item on shipping hub
+        /** place item on shipping hub **/
         sleep(6000);
 
         robot.rotate(-90, MOTOR_PWR);
@@ -39,4 +39,5 @@ public class blueWarehouseParkMain extends LinearOpMode {
 
         robot.drive(DistanceUnit.CM.fromInches(64), 1);
     }
+
 }

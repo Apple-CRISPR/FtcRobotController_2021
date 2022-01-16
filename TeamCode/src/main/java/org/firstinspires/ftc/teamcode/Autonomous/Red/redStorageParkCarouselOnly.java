@@ -14,7 +14,7 @@ public class redStorageParkCarouselOnly extends LinearOpMode {
     /** This program goes and spins the carousel
      * Parks in the storage unit */
 
-    private final double MOTOR_PWR = 0.4;
+    private final double MOTOR_PWR = AcRobot.autoMotorPower;
 
     @Override
     public void runOpMode() throws InterruptedException {

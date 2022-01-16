@@ -10,8 +10,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.math.Constants;
 import org.firstinspires.ftc.teamcode.math.Vector;
+
+import java.util.List;
 
 public class AcRobot {
 
@@ -21,7 +24,7 @@ public class AcRobot {
     public static final double rotationDistance = 238; // cm
     public static final double strafeModifier = 1.125;
     public static final double mmPerTick = (Math.PI*wheelDiameter)/encoderResolution;
-    // public static final double MOTOR_PWR =
+    public static final double autoMotorPower = 0.4;
 
 
     // movement
@@ -172,6 +175,8 @@ public class AcRobot {
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motor.setPower(power);
     }
+
+
 
     //
 
