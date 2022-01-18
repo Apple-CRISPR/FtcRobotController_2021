@@ -115,9 +115,10 @@ public class AcRobotTest extends OpMode
             y -= 10;
         }
 
-        robot.setArmPosition(new Vector(x, y));
-
-        robot.update();
+        //robot.setArmPosition(new Vector(x, y));
+        //System.out.println(x);
+        //robot.update();
+        //robot.setArmAngle(y,x);
     }
 
     /*

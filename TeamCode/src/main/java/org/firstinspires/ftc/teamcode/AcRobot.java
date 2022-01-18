@@ -27,6 +27,8 @@ public class AcRobot {
     public DigitalChannel grabberTouch = null;
     public DigitalChannel limitFront = null;
     public DigitalChannel limitRear = null;
+    public DigitalChannel upperArmFront = null;
+    public DigitalChannel upperArmRear = null;
 
     /* servos */
     public CRServo grabberRight = null;
@@ -37,6 +39,9 @@ public class AcRobot {
 
     public Arm arm = null;
 
+    //offsets
+    public double baseOffset = 130;
+    public double jointOffset = 150;
 
     public AcRobot(){
     }
@@ -63,6 +68,10 @@ public class AcRobot {
         limitFront.setMode(DigitalChannel.Mode.INPUT);
         limitRear = hardwareMap.get(DigitalChannel.class, "armLimitRear");
         limitRear.setMode(DigitalChannel.Mode.INPUT);
+        upperArmFront = hardwareMap.get(DigitalChannel.class, "upperArmFront");
+        upperArmFront.setMode(DigitalChannel.Mode.INPUT);
+        upperArmRear = hardwareMap.get(DigitalChannel.class, "upperArmRear");
+        upperArmRear.setMode(DigitalChannel.Mode.INPUT);
 
         grabberTouch = hardwareMap.get(DigitalChannel.class, "grabberTouch");
         grabberTouch.setMode(DigitalChannel.Mode.INPUT);
@@ -86,26 +95,45 @@ public class AcRobot {
         // set arm segment starting positions
     }
 
+    public void testJoint(double ticks){
+        armJoint.setTargetPosition((int)ticks);
+        armJoint.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armJoint.setPower(1);
+    }
+
     // converts angle to ticks for motor
     public double ToTicks(double angle, double motorTPR){
         return (angle/360)*motorTPR;
     }
-
     public void setArmPosition(Vector position){
         arm.setTarget(position);
     }
-
     public void update(){
         arm.update();
 
-        double basePos = ToTicks(radToDeg(arm.segments[0].showAngle), Constants.motor5202TPR);
-        double jointPos = ToTicks(radToDeg(arm.segments[0].showAngle), Constants.coreHexTPR);
+        setArmAngle(arm.segments[0].showAngle, arm.segments[1].showAngle);
+        System.out.println("base: "+radToDeg(arm.segments[0].showAngle)+" joint: "+radToDeg(arm.segments[1].showAngle));
+    }
+    public void setArmAngle(double lowerAngle, double upperAngle){
+        double basePos = ToTicks(lowerAngle, Constants.motor5202TPR);
+        double jointPos = ToTicks(upperAngle, Constants.motor5202TPR);
+
         double baseOffset = ToTicks(130, Constants.motor5202TPR);
-        double jointOffset = ToTicks(130, Constants.coreHexTPR);
+        double jointOffset = ToTicks(151, Constants.motor5202TPR);
 
         basePos-=baseOffset;
+        jointPos-=jointOffset;
 
-        double currentPos = armBase.getCurrentPosition()/(-1.15);
+        //joint limit switch code
+        double currentJointPos = armJoint.getCurrentPosition();
+        double jointVel = jointPos-currentJointPos;
+        if(upperArmFront.getState() && jointVel <= 0){
+            jointPos = currentJointPos;
+        }
+        if(upperArmRear.getState() && jointVel > 0) {
+            jointPos = currentJointPos;
+        }
+        double currentPos = armBase.getCurrentPosition()/(-1.5);
         double vel = basePos-currentPos;
 
         if(limitFront.getState() && vel <= 0){
@@ -114,13 +142,16 @@ public class AcRobot {
         if(limitRear.getState() && vel > 0){
             basePos = currentPos;
         }
-
         //System.out.println(basePos);
 
         armBase.setTargetPosition((int)(basePos*(-1.5)));
+        armJoint.setTargetPosition((int)jointPos);
+
         armBase.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //armJoint.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armJoint.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
         armBase.setPower(1);
+        armJoint.setPower(1);
     }
     public double radToDeg(double radians)
     {
