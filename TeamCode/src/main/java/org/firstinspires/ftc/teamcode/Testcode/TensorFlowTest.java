@@ -136,9 +136,11 @@ public class TensorFlowTest extends LinearOpMode {
         waitForStart();
 
 
-            if (opModeIsActive()) {
+            while (opModeIsActive()) {
 
                     List <Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                    telemetry.addData("# of detections: ", updatedRecognitions.size());
+                    telemetry.update();
 
                         hubLevel = 3;
 
@@ -150,13 +152,15 @@ public class TensorFlowTest extends LinearOpMode {
 
 
                                 double RECOGNITION_CENTER = (recognition.getLeft() + recognition.getRight()) / 2;
+                                telemetry.addLine("Duck detected");
+                                telemetry.addData("Recognition center: ", RECOGNITION_CENTER);
 
-                                if (RECOGNITION_CENTER < 340) {
+                                /* if (RECOGNITION_CENTER < 340) {
                                     hubLevel = 1;
                                 } else if (RECOGNITION_CENTER > 340) {
                                     hubLevel = 2;
                                 }
-                                telemetry.addLine("Duck Detected.");
+                                telemetry.addLine("Duck Detected."); */
                                 telemetry.update();
                             }
 
@@ -166,14 +170,10 @@ public class TensorFlowTest extends LinearOpMode {
 
 
                     /*
-                    if (ducksDetected == false) {
-                        hubLevel = 3;
-                    } */
-
                     sleep(2000);
 
                     telemetry.addData("hub level: ", hubLevel);
-                    telemetry.update();
+                    telemetry.update(); */
 
                     sleep(5000);
                     if (isStopRequested()) {

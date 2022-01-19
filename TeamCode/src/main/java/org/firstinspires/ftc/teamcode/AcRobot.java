@@ -10,7 +10,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.math.Constants;
 import org.firstinspires.ftc.teamcode.math.Vector;
 
@@ -47,6 +49,23 @@ public class AcRobot {
     /* servos */
     public CRServo grabberRight = null;
     public CRServo grabberLeft = null;
+
+    public static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
+    public static final String[] LABELS = {
+            "Ball",
+            "Cube",
+            "Duck",
+            "Marker"
+    };
+
+
+    public static final String VUFORIA_KEY =
+            "ASqpJr7/////AAABmUVwKJGyqUYXglgkc+gVFKaMDJvVe1kCbfQEOluUHsrX0uw34sWuJRkDlw6hPRpC4eu08HxrIDCThmAlBj8A"
+                    + "/Mjvlve5ieeCVQ6yPoz01voa9FUrsR4pfYrM9n6CtqC2a8DXN0nFfFR0maREQO0csOige5xAxVWPpg3RUEUt9Ncs/7EQ8FG"
+                    + "50IFy7GqykqK2C3r73em1a2w9rsCwYHghJN5/dR44OEd6GWVQIRErDeXvuSuhVLJFjnvaHJhm3QG6rOH+uE+8/YI+imlImad21HyBdTb53q6E0IWpv" +
+                    "OVfC1AtX9MFgJIn6diRyp1Q0ULp7K6KHyzRlD/5b+bgKesqw1yFyb/jdSkJMiojDEWt4a8F";
+
+
 
 
     public AcRobot(){
