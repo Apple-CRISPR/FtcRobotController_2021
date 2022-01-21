@@ -62,21 +62,28 @@ public class redWarehouseParkMain extends LinearOpMode {
 
         waitForStart();
 
-        /** locate duck position **/
+        if(opModeIsActive()) {
 
-        sleep(10000);
+            /** locate duck position **/
+            sleep(300);
+            int hubLevel = locateDuck();
+            sleep(200);
+            telemetry.addData("hub level: ", hubLevel);
+            telemetry.update();
 
-        robot.strafe(DistanceUnit.CM.fromInches(-22), MOTOR_PWR);
-        robot.drive(DistanceUnit.CM.fromInches(12), MOTOR_PWR);
+            robot.drive(DistanceUnit.CM.fromInches(12), MOTOR_PWR);
+            robot.strafe(DistanceUnit.CM.fromInches(-22), MOTOR_PWR);
 
-        /** place box on shipping hub **/
+            /** place box on shipping hub **/
 
-        sleep(6000);
+            sleep(6000);
 
-        robot.rotate(90, MOTOR_PWR);
-        robot.strafe(DistanceUnit.CM.fromInches(-5), MOTOR_PWR);
+            robot.rotate(90, MOTOR_PWR);
+            robot.strafe(DistanceUnit.CM.fromInches(-5), MOTOR_PWR);
 
-        robot.drive(DistanceUnit.CM.fromInches(64), 1);
+            robot.drive(DistanceUnit.CM.fromInches(64), 1);
+        }
+
     }
 
 
@@ -105,7 +112,7 @@ public class redWarehouseParkMain extends LinearOpMode {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.6f;
+        tfodParameters.minResultConfidence = 0.4f;
         tfodParameters.isModelTensorFlow2 = true;
         tfodParameters.inputSize = 320;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
@@ -114,13 +121,11 @@ public class redWarehouseParkMain extends LinearOpMode {
 
 
     /* Method for locating duck, returns the hub level
-     * Blue 2 center: 70-90
-     * Blue 3 center: 370-390
+     * Blue 2 center: 290-300
+     * Blue 3 center: 590-600
      */
     private int locateDuck() {
-
         List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-
         int theHubLevel = 1;
 
         // step through the list of recognitions and display boundary info.

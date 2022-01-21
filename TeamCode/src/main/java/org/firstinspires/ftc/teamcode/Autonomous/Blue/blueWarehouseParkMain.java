@@ -21,8 +21,7 @@ public class blueWarehouseParkMain extends LinearOpMode {
     /** STARTS ON THE RIGHT EDGE OF THE TILE
      * This program detects the duck
      * Places freight on shipping hub level
-     * Parks in warehouse
-     */
+     * Parks in warehouse */
 
 
     private final double MOTOR_PWR = AcRobot.autoMotorPower;
@@ -65,13 +64,16 @@ public class blueWarehouseParkMain extends LinearOpMode {
 
         if (opModeIsActive()) {
 
+            sleep(300);
             /** Locate duck position **/
             int hubLevel = locateDuck();
 
+            sleep(200);
+            telemetry.addData("Hub Level: ", hubLevel);
+            telemetry.update();
 
-
-            robot.strafe(DistanceUnit.CM.fromInches(22), MOTOR_PWR);
             robot.drive(DistanceUnit.CM.fromInches(12), MOTOR_PWR);
+            robot.strafe(DistanceUnit.CM.fromInches(22), MOTOR_PWR);
 
             /** place item on shipping hub **/
 
@@ -119,7 +121,7 @@ public class blueWarehouseParkMain extends LinearOpMode {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.6f;
+        tfodParameters.minResultConfidence = 0.4f;
         tfodParameters.isModelTensorFlow2 = true;
         tfodParameters.inputSize = 320;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);

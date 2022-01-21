@@ -11,7 +11,8 @@ import org.firstinspires.ftc.teamcode.AcRobot;
 @Autonomous (name = "blueStorageParkCarouselOnly", group = "Autonomous")
 public class blueStorageParkCarouselOnly extends LinearOpMode {
 
-    /** This program goes and spins the carousel
+    /** STARTS ON THE RIGHT EDGE OF THE TILE
+     * This program goes and spins the carousel
      * Parks in the storage unit */
 
     private final double MOTOR_PWR = AcRobot.autoMotorPower;
