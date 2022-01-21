@@ -90,7 +90,7 @@ public class AcRobot {
 
         //initialize arm
         DcMotorEx armMotors[] = {armBase, armJoint};
-        arm = new Arm(armMotors, 100);
+        arm = new Arm(armMotors, 336); //in milimeters
 
         // set arm segment starting positions
     }
@@ -111,7 +111,7 @@ public class AcRobot {
     public void update(){
         arm.update();
 
-        setArmAngle(arm.segments[0].showAngle, arm.segments[1].showAngle);
+        setArmAngle(radToDeg(arm.segments[0].showAngle), radToDeg(arm.segments[1].showAngle) );
         System.out.println("base: "+radToDeg(arm.segments[0].showAngle)+" joint: "+radToDeg(arm.segments[1].showAngle));
     }
     public void setArmAngle(double lowerAngle, double upperAngle){
@@ -119,18 +119,18 @@ public class AcRobot {
         double jointPos = ToTicks(upperAngle, Constants.motor5202TPR);
 
         double baseOffset = ToTicks(130, Constants.motor5202TPR);
-        double jointOffset = ToTicks(151, Constants.motor5202TPR);
+        double jointOffset = ToTicks(150, Constants.motor5202TPR);
 
         basePos-=baseOffset;
         jointPos-=jointOffset;
 
         //joint limit switch code
-        double currentJointPos = armJoint.getCurrentPosition();
+        double currentJointPos = armJoint.getCurrentPosition()/(-1);
         double jointVel = jointPos-currentJointPos;
-        if(upperArmFront.getState() && jointVel <= 0){
+        if(upperArmFront.getState() && jointVel > 0){
             jointPos = currentJointPos;
         }
-        if(upperArmRear.getState() && jointVel > 0) {
+        if(upperArmRear.getState() && jointVel <= 0) {
             jointPos = currentJointPos;
         }
         double currentPos = armBase.getCurrentPosition()/(-1.5);
@@ -142,15 +142,14 @@ public class AcRobot {
         if(limitRear.getState() && vel > 0){
             basePos = currentPos;
         }
-        //System.out.println(basePos);
 
         armBase.setTargetPosition((int)(basePos*(-1.5)));
-        armJoint.setTargetPosition((int)jointPos);
+        armJoint.setTargetPosition((int)jointPos*(-1));
 
         armBase.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armJoint.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        armBase.setPower(1);
+        armBase.setPower(0.25);
         armJoint.setPower(1);
     }
     public double radToDeg(double radians)
