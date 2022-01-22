@@ -21,8 +21,20 @@ public class AcRobot {
     public DcMotorEx leftRear = null;
     public DcMotorEx rightRear = null;
 
+    // autonomuus
+    public static final double encoderResolution = 537.7; // Ticks per revolution
+    public static final double wheelDiameter = 96; // mm
+    public static final double rotationDistance = 238; // cm
+    public static final double strafeModifier = 1.125;
+    public static final double mmPerTick = (Math.PI*wheelDiameter)/encoderResolution;
+    final double ticksPerDeg = (encoderResolution/360);
+    double cmToTick(double cm) { return cm*10/mmPerTick; }
+    public double degToTicks(double deg) {
+        return ticksPerDeg*deg;
+    }
+
     // DcMotor
-    public DcMotor carousel;
+    public DcMotor carousel = null;
 
     public DigitalChannel grabberTouch = null;
     public DigitalChannel limitFront = null;
@@ -39,9 +51,16 @@ public class AcRobot {
 
     public Arm arm = null;
 
+    // shiping hub levels
+    private double levels[] = {96.2, 247.65, 412.75};
+
     //offsets
     public double baseOffset = 130;
     public double jointOffset = 150;
+
+    //ignore this jank code
+    public String grabberMode = "idle";
+    public int grabTime = 0;
 
     public AcRobot(){
     }
@@ -62,6 +81,7 @@ public class AcRobot {
         //Servos
         grabberLeft = hardwareMap.get(CRServo.class, "left");
         grabberRight = hardwareMap.get(CRServo.class, "right");
+        grabberLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Sensors
         limitFront = hardwareMap.get(DigitalChannel.class, "armLimitFront");
@@ -72,6 +92,8 @@ public class AcRobot {
         upperArmFront.setMode(DigitalChannel.Mode.INPUT);
         upperArmRear = hardwareMap.get(DigitalChannel.class, "upperArmRear");
         upperArmRear.setMode(DigitalChannel.Mode.INPUT);
+
+        carousel = hardwareMap.get(DcMotor.class, "carousel");
 
         grabberTouch = hardwareMap.get(DigitalChannel.class, "grabberTouch");
         grabberTouch.setMode(DigitalChannel.Mode.INPUT);
@@ -90,9 +112,35 @@ public class AcRobot {
 
         //initialize arm
         DcMotorEx armMotors[] = {armBase, armJoint};
-        arm = new Arm(armMotors, 336); //in milimeters
+        arm = new Arm(armMotors, 336); //336 in milimeters
+        arm.segments[0].length = 312;
 
         // set arm segment starting positions
+        initAngleSoItNoBreak();
+    }
+    public void grab(){
+        grabberMode = "grabbing";
+    }
+    public void release(){
+        grabberMode = "releasing";
+    }
+    public void moveArmToLevel(int level){
+        setArmPosition(new Vector(336, levels[level-1]));
+    }
+    public void moveToPickUpBlock(){
+        setArmPosition(new Vector(550, 150));
+    }
+    public void initAngleSoItNoBreak(){
+        double x = -660;
+        double y = 364;
+        setArmPosition(new Vector(x,y));
+        arm.update();
+        x = 50;
+        y = 336;
+        setArmPosition(new Vector(x,y));
+        for(int i = 0; i < 100; i++){
+            arm.update();
+        }
     }
 
     public void testJoint(double ticks){
@@ -109,24 +157,51 @@ public class AcRobot {
         arm.setTarget(position);
     }
     public void update(){
+        // update arm position
         arm.update();
 
-        setArmAngle(radToDeg(arm.segments[0].showAngle), radToDeg(arm.segments[1].showAngle) );
-        System.out.println("base: "+radToDeg(arm.segments[0].showAngle)+" joint: "+radToDeg(arm.segments[1].showAngle));
+        // update grabber
+        updateGrabber();
+
+        // move arm motors
+        setArmAngle(arm.segments[0].setAngle, -arm.segments[1].setAngle);
+    }
+    public void updateGrabber(){
+        if(grabberMode == "grabbing") {
+            if (grabberTouch.getState()) {
+                grabberLeft.setPower(1);
+                grabberRight.setPower(1);
+            }else{
+                grabberLeft.setPower(0);
+                grabberRight.setPower(0);
+                grabberMode = "idle";
+            }
+        }else if(grabberMode == "releasing"){
+            grabberLeft.setPower(-1);
+            grabberRight.setPower(-1);
+            grabTime++;
+        }else{
+            grabberLeft.setPower(0);
+            grabberRight.setPower(0);
+        }
+        if(grabTime>100){
+            grabTime = 0;
+            grabberMode = "idle";
+        }
     }
     public void setArmAngle(double lowerAngle, double upperAngle){
         double basePos = ToTicks(lowerAngle, Constants.motor5202TPR);
         double jointPos = ToTicks(upperAngle, Constants.motor5202TPR);
 
-        double baseOffset = ToTicks(130, Constants.motor5202TPR);
-        double jointOffset = ToTicks(150, Constants.motor5202TPR);
+        double baseOffset = ToTicks(122, Constants.motor5202TPR);
+        double jointOffset = ToTicks(148, Constants.motor5202TPR);
 
         basePos-=baseOffset;
         jointPos-=jointOffset;
 
         //joint limit switch code
         double currentJointPos = armJoint.getCurrentPosition()/(-1);
-        double jointVel = jointPos-currentJointPos;
+        double jointVel = (jointPos)-(currentJointPos);
         if(upperArmFront.getState() && jointVel > 0){
             jointPos = currentJointPos;
         }
@@ -142,6 +217,7 @@ public class AcRobot {
         if(limitRear.getState() && vel > 0){
             basePos = currentPos;
         }
+        System.out.println(vel);
 
         armBase.setTargetPosition((int)(basePos*(-1.5)));
         armJoint.setTargetPosition((int)jointPos*(-1));
@@ -149,7 +225,7 @@ public class AcRobot {
         armBase.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armJoint.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        armBase.setPower(0.25);
+        armBase.setPower(0.7);
         armJoint.setPower(1);
     }
     public double radToDeg(double radians)
@@ -201,5 +277,42 @@ public class AcRobot {
         leftRear.setPower(v3);
         rightRear.setPower(v4);
 
+    }
+
+    public void drive(double cm, double power) {
+        double ticks = cmToTick(cm);
+        moveMotor(leftFront, (int)ticks, power);
+        moveMotor(rightFront, (int)ticks, power);
+        moveMotor(leftRear, (int)ticks, power);
+        moveMotor(rightRear, (int)ticks, power);
+        while(leftFront.isBusy() ||  rightFront.isBusy() || leftRear.isBusy() || rightRear.isBusy()) {}
+    }
+
+    /** strafe **/
+    public void strafe(double cm, double power) {
+        double ticks = -cmToTick(cm)*strafeModifier;
+        moveMotor(leftFront, (int)-ticks, power);
+        moveMotor(rightFront, (int)ticks, power);
+        moveMotor(leftRear, (int)ticks, power);
+        moveMotor(rightRear, (int)-ticks, power);
+        while(leftFront.isBusy() ||  rightFront.isBusy() || leftRear.isBusy() || rightRear.isBusy()) {}
+    }
+
+    /** rotate **/
+    public void rotate(double deg, double power) {
+        double ticks = -cmToTick(rotationDistance/360*deg);
+        moveMotor(leftFront, (int)-ticks, power);
+        moveMotor(rightFront, (int)ticks, power);
+        moveMotor(leftRear, (int)-ticks, power);
+        moveMotor(rightRear, (int)ticks, power);
+        while(leftFront.isBusy() ||  rightFront.isBusy() || leftRear.isBusy() || rightRear.isBusy()) {}
+    }
+
+    //Used inside of autonomous drive methods
+    private void moveMotor(DcMotor motor, int ticks, double power) {
+        int postion = motor.getCurrentPosition();
+        motor.setTargetPosition(postion - ticks);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motor.setPower(power);
     }
 }

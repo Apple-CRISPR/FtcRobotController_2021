@@ -13,6 +13,7 @@ public class Segment {
     public double showAngle = 0;
     public Segment child;
     public DcMotorEx motor;
+    public double setAngle = 0;
 
     public Segment(double length, DcMotorEx outputMotor){
 
@@ -56,7 +57,7 @@ public class Segment {
         }
 
         //double angle = Math.round(radToDeg(showAngle));
-        double setAngle = radToDeg(showAngle)/180;
+        setAngle = radToDeg(showAngle);
         //System.out.println(setAngle);
         showAngle = angle;
     }

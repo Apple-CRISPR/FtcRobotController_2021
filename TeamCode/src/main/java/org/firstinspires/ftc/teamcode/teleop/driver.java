@@ -57,8 +57,6 @@ public class driver extends OpMode
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private AcRobot robot = new AcRobot();
-    double x = 90;
-    double y = 90;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -68,6 +66,7 @@ public class driver extends OpMode
         telemetry.addData("Status", "Initialized");
 
         robot.initHardware(hardwareMap);
+        robot.moveArmToLevel(1);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -98,33 +97,43 @@ public class driver extends OpMode
     public void loop() {
         robot.DRIVE(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
         //AcRobot.DriveWithVelocity(new Vector(-1,0),0, 500);
-        if(gamepad1.dpad_right){
-            x+=1;
-        }else if(gamepad1.dpad_left){
-            x-=1;
+//        if(gamepad1.dpad_right){
+//            x+=1;
+//        }else if(gamepad1.dpad_left){
+//            x-=1;
+//        }
+//
+//        if(gamepad1.dpad_up){
+//            y+=1;
+//        }else if(gamepad1.dpad_down) {
+//            y -= 1;
+//        }
+        if(gamepad1.x){
+            robot.moveArmToLevel(1);
         }
-
-        if(gamepad1.dpad_up){
-            y+=1;
-        }else if(gamepad1.dpad_down) {
-            y -= 1;
+        if(gamepad1.y){
+            robot.moveArmToLevel(2);
         }
-        if (gamepad1.x) {
-
-            y=90;
-            telemetry.addData("y", y);
+        if(gamepad1.b){
+            robot.moveArmToLevel(3);
         }
-        if (gamepad1.y) {
-            y=70;
-            telemetry.addData("y", y);
+        if(gamepad1.a){
+            robot.moveToPickUpBlock();
         }
-
-        //levels 3, 9, 15
+        if(gamepad1.right_trigger>0.5){
+            robot.grab();
+        }
+        if(gamepad1.left_trigger>0.5){
+            robot.release();
+        }
         //robot.setArmPosition(new Vector(x, y));
         //System.out.println(x);
-        //robot.update();mm , n
-        //robot.setArmPosition(new Vector(x,y));
-        robot.setArmAngle(y,x);
+        robot.update();
+        telemetry.addData("x: ", robot.arm.target.x);
+        telemetry.addData("y: ", robot.arm.target.y);
+        telemetry.addData("base: ", robot.arm.segments[0].setAngle);
+        telemetry.addData("joint: ", robot.arm.segments[1].setAngle);
+        //robot.setArmAngle(128,100);
         //System.out.println("x: "+x+" y:"+y);
     }
 
