@@ -11,10 +11,11 @@ import org.firstinspires.ftc.teamcode.AcRobot;
 @Autonomous (name = "redStorageParkCarouselOnly", group = "Autonomous")
 public class redStorageParkCarouselOnly extends LinearOpMode {
 
-    /** This program goes and spins the carousel
+    /** STARTS ON THE LEFT EDGE OF THE TILE
+     *  This program goes and spins the carousel
      * Parks in the storage unit */
 
-    private final double MOTOR_PWR = 0.4;
+    private final double MOTOR_PWR = AcRobot.autoMotorPower;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -28,7 +29,7 @@ public class redStorageParkCarouselOnly extends LinearOpMode {
         if(opModeIsActive()) {
         robot.drive(DistanceUnit.CM.fromInches(3), MOTOR_PWR);
         robot.rotate(90, MOTOR_PWR);
-        robot.drive(DistanceUnit.CM.fromInches(-18), MOTOR_PWR);
+        robot.drive(DistanceUnit.CM.fromInches(-17.5), MOTOR_PWR);
         //robot.drive(DistanceUnit.CM.fromInches(-2), 0.25);
 
             robot.carousel.setPower(-0.75);

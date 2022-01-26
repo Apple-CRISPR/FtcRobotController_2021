@@ -8,7 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 @Disabled
 public class blueWarehouseParkDoNothing extends LinearOpMode {
 
-    /** This program does nothing
+    /** STARTS ON THE RIGHT EDGE OF THE TILE
+     * This program does nothing
      * parks in the warehouse **/
 
     @Override

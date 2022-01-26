@@ -126,6 +126,20 @@ public class driver extends OpMode
         if(gamepad1.left_trigger>0.5){
             robot.release();
         }
+        
+        if(gamepad1.left_bumper){
+            robot.carousel.setPower(0.75);
+        }else if(gamepad1.right_bumper){
+            robot.carousel.setPower(-0.75);
+        }else{
+            robot.carousel.setPower(0);
+        }
+        //slowmode toggle
+        if(gamepad1.dpad_down){
+            robot.slowMode = true;
+        }else if(gamepad1.dpad_up){
+            robot.slowMode = false;
+        }
         //robot.setArmPosition(new Vector(x, y));
         //System.out.println(x);
         robot.update();

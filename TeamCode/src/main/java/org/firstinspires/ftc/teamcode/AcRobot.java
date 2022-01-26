@@ -11,34 +11,44 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.arm.Arm;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.math.Constants;
 import org.firstinspires.ftc.teamcode.math.Vector;
 
+import java.util.List;
+
 public class AcRobot {
+
+    /** autonomous movement constants **/
+    public static final double encoderResolution = 537.7; // Ticks per revolution
+    public static final double wheelDiameter = 96; // mm
+    public static final double rotationDistance = 238; // cm
+    public static final double strafeModifier = 1.125;
+    public static final double mmPerTick = (Math.PI*wheelDiameter)/encoderResolution;
+    public static final double autoMotorPower = 0.4;
+
+
     // movement
     public DcMotorEx leftFront = null;
     public DcMotorEx rightFront = null;
     public DcMotorEx leftRear = null;
     public DcMotorEx rightRear = null;
 
-    // autonomuus
-    public static final double encoderResolution = 537.7; // Ticks per revolution
-    public static final double wheelDiameter = 96; // mm
-    public static final double rotationDistance = 238; // cm
-    public static final double strafeModifier = 1.125;
-    public static final double mmPerTick = (Math.PI*wheelDiameter)/encoderResolution;
-    final double ticksPerDeg = (encoderResolution/360);
-    double cmToTick(double cm) { return cm*10/mmPerTick; }
-    public double degToTicks(double deg) {
-        return ticksPerDeg*deg;
-    }
-
     // DcMotor
+
+    //arm motors
+    public DcMotorEx armJoint = null;
+    public DcMotorEx armBase = null;
+
+    // DcMotor (Carousel spinner)
     public DcMotor carousel = null;
 
     public DigitalChannel grabberTouch = null;
     public DigitalChannel limitFront = null;
     public DigitalChannel limitRear = null;
+
     public DigitalChannel upperArmFront = null;
     public DigitalChannel upperArmRear = null;
 
@@ -46,21 +56,36 @@ public class AcRobot {
     public CRServo grabberRight = null;
     public CRServo grabberLeft = null;
 
-    public DcMotorEx armBase = null;
-    public DcMotorEx armJoint = null;
-
     public Arm arm = null;
 
     // shiping hub levels
-    private double levels[] = {96.2, 247.65, 412.75};
+    private double levels[] = {226.2, 327.65, 482.75};
 
     //offsets
     public double baseOffset = 130;
     public double jointOffset = 150;
 
+    public boolean slowMode = false;
+
     //ignore this jank code
     public String grabberMode = "idle";
     public int grabTime = 0;
+
+    public static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
+    public static final String[] LABELS = {
+            "Ball",
+            "Cube",
+            "Duck",
+            "Marker"
+    };
+
+
+    public static final String VUFORIA_KEY =
+            "ASqpJr7/////AAABmUVwKJGyqUYXglgkc+gVFKaMDJvVe1kCbfQEOluUHsrX0uw34sWuJRkDlw6hPRpC4eu08HxrIDCThmAlBj8A"
+                    + "/Mjvlve5ieeCVQ6yPoz01voa9FUrsR4pfYrM9n6CtqC2a8DXN0nFfFR0maREQO0csOige5xAxVWPpg3RUEUt9Ncs/7EQ8FG"
+                    + "50IFy7GqykqK2C3r73em1a2w9rsCwYHghJN5/dR44OEd6GWVQIRErDeXvuSuhVLJFjnvaHJhm3QG6rOH+uE+8/YI+imlImad21HyBdTb53q6E0IWpv" +
+                    "OVfC1AtX9MFgJIn6diRyp1Q0ULp7K6KHyzRlD/5b+bgKesqw1yFyb/jdSkJMiojDEWt4a8F";
+
 
     public AcRobot(){
     }
@@ -74,6 +99,12 @@ public class AcRobot {
         leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
         rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
 
+        //Arm motors
+        armJoint = hardwareMap.get(DcMotorEx.class, "armJoint");
+        armBase = hardwareMap.get(DcMotorEx.class, "armBase");
+
+        carousel = hardwareMap.get(DcMotor.class, "carousel");
+
         //set two of the motors to be reversed
         rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -81,6 +112,7 @@ public class AcRobot {
         //Servos
         grabberLeft = hardwareMap.get(CRServo.class, "left");
         grabberRight = hardwareMap.get(CRServo.class, "right");
+
         grabberLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Sensors
@@ -125,10 +157,10 @@ public class AcRobot {
         grabberMode = "releasing";
     }
     public void moveArmToLevel(int level){
-        setArmPosition(new Vector(336, levels[level-1]));
+        setArmPosition(new Vector(300, levels[level-1]));
     }
     public void moveToPickUpBlock(){
-        setArmPosition(new Vector(550, 150));
+        setArmPosition(new Vector(450, 200));
     }
     public void initAngleSoItNoBreak(){
         double x = -660;
@@ -141,6 +173,14 @@ public class AcRobot {
         for(int i = 0; i < 100; i++){
             arm.update();
         }
+    }
+    public void recalibrateArm(){
+        setArmAngle(122, -148);
+        armJoint.setPower(0);
+        armBase.setPower(0);
+        sleep(100);
+        armBase.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armJoint.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void testJoint(double ticks){
@@ -270,23 +310,23 @@ public class AcRobot {
         final double v1 = r * Math.cos(robotAngle) + rightX;
         final double v2 = r * Math.sin(robotAngle) - rightX;
         final double v3 = r * Math.sin(robotAngle) + rightX;
-        final double v4 = r * Math.cos(robotAngle) - rightX;
+        final double v4     = r * Math.cos(robotAngle) - rightX;
 
-        leftFront.setPower(v1);
-        rightFront.setPower(v2);
-        leftRear.setPower(v3);
-        rightRear.setPower(v4);
+        if(slowMode){
+            leftFront.setPower(v1*0.5);
+            rightFront.setPower(v2*0.5);
+            leftRear.setPower(v3*0.5);
+            rightRear.setPower(v4*0.5);
+        }else{
+            leftFront.setPower(v1);
+            rightFront.setPower(v2);
+            leftRear.setPower(v3);
+            rightRear.setPower(v4);
+        }
+
 
     }
 
-    public void drive(double cm, double power) {
-        double ticks = cmToTick(cm);
-        moveMotor(leftFront, (int)ticks, power);
-        moveMotor(rightFront, (int)ticks, power);
-        moveMotor(leftRear, (int)ticks, power);
-        moveMotor(rightRear, (int)ticks, power);
-        while(leftFront.isBusy() ||  rightFront.isBusy() || leftRear.isBusy() || rightRear.isBusy()) {}
-    }
 
     /** strafe **/
     public void strafe(double cm, double power) {
@@ -295,6 +335,15 @@ public class AcRobot {
         moveMotor(rightFront, (int)ticks, power);
         moveMotor(leftRear, (int)ticks, power);
         moveMotor(rightRear, (int)-ticks, power);
+        while(leftFront.isBusy() ||  rightFront.isBusy() || leftRear.isBusy() || rightRear.isBusy()) {}
+    }
+
+    public void drive(double cm, double power) {
+        double ticks = cmToTick(cm);
+        moveMotor(leftFront, (int)ticks, power);
+        moveMotor(rightFront, (int)ticks, power);
+        moveMotor(leftRear, (int)ticks, power);
+        moveMotor(rightRear, (int)ticks, power);
         while(leftFront.isBusy() ||  rightFront.isBusy() || leftRear.isBusy() || rightRear.isBusy()) {}
     }
 
@@ -315,4 +364,11 @@ public class AcRobot {
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motor.setPower(power);
     }
+
+
+
+    // unit conversions
+    public double inToCm(double in) { return in*2.54; }
+    public double ftToCm(double ft) { return ft*12*2.54; }
+    double cmToTick(double cm) { return cm*10/mmPerTick; }
 }
