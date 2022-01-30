@@ -67,7 +67,7 @@ public class AcRobot {
 
     public boolean slowMode = false;
 
-    //ignore this jank code
+    //Grabber code variables
     public String grabberMode = "idle";
     public int grabTime = 0;
 
@@ -80,11 +80,10 @@ public class AcRobot {
     };
 
 
-    public static final String VUFORIA_KEY =
-            "ASqpJr7/////AAABmUVwKJGyqUYXglgkc+gVFKaMDJvVe1kCbfQEOluUHsrX0uw34sWuJRkDlw6hPRpC4eu08HxrIDCThmAlBj8A"
-                    + "/Mjvlve5ieeCVQ6yPoz01voa9FUrsR4pfYrM9n6CtqC2a8DXN0nFfFR0maREQO0csOige5xAxVWPpg3RUEUt9Ncs/7EQ8FG"
-                    + "50IFy7GqykqK2C3r73em1a2w9rsCwYHghJN5/dR44OEd6GWVQIRErDeXvuSuhVLJFjnvaHJhm3QG6rOH+uE+8/YI+imlImad21HyBdTb53q6E0IWpv" +
-                    "OVfC1AtX9MFgJIn6diRyp1Q0ULp7K6KHyzRlD/5b+bgKesqw1yFyb/jdSkJMiojDEWt4a8F";
+    public static final String VUFORIA_KEY = "ASqpJr7/////AAABmUVwKJGyqUYXglgkc+gVFKaMDJvVe1kCbfQEOluUHsrX0uw34sWuJRkDlw6hPRpC4eu08HxrIDCThmAlBj8A"
+            + "/Mjvlve5ieeCVQ6yPoz01voa9FUrsR4pfYrM9n6CtqC2a8DXN0nFfFR0maREQO0csOige5xAxVWPpg3RUEUt9Ncs/7EQ8FG"
+            + "50IFy7GqykqK2C3r73em1a2w9rsCwYHghJN5/dR44OEd6GWVQIRErDeXvuSuhVLJFjnvaHJhm3QG6rOH+uE+8/YI+imlImad21HyBdTb53q6E0IWpv"
+            + "OVfC1AtX9MFgJIn6diRyp1Q0ULp7K6KHyzRlD/5b+bgKesqw1yFyb/jdSkJMiojDEWt4a8F";
 
 
     public AcRobot(){
@@ -207,7 +206,7 @@ public class AcRobot {
         setArmAngle(arm.segments[0].setAngle, -arm.segments[1].setAngle);
     }
     public void updateGrabber(){
-        if(grabberMode == "grabbing") {
+        if(grabberMode.equals("grabbing")) {
             if (grabberTouch.getState()) {
                 grabberLeft.setPower(1);
                 grabberRight.setPower(1);
@@ -216,10 +215,10 @@ public class AcRobot {
                 grabberRight.setPower(0);
                 grabberMode = "idle";
             }
-        }else if(grabberMode == "releasing"){
+        }else if(grabberMode.equals("releasing")){
             grabberLeft.setPower(-1);
             grabberRight.setPower(-1);
-            grabTime++;
+            grabTime =+ 4;
         }else{
             grabberLeft.setPower(0);
             grabberRight.setPower(0);

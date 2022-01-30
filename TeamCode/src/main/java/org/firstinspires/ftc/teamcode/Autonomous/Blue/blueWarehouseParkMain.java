@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.vuforia.Vuforia;
+
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -12,6 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.AcRobot;
+import org.tensorflow.lite.task.vision.detector.Detection;
 
 import java.util.List;
 
@@ -26,21 +29,14 @@ public class blueWarehouseParkMain extends LinearOpMode {
 
     private final double MOTOR_PWR = AcRobot.autoMotorPower;
 
-    /**
-     * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
-     * localization engine.
-     */
+    /** {@link #vuforia} is the variable we will use to store our instance of the Vuforia localization engine. */
     private VuforiaLocalizer vuforia;
 
-    /**
-     * {@link #tfod} is the variable we will use to store our instance of the TensorFlow Object
-     * Detection engine.
-     */
+    /** {@link #tfod} is the variable we will use to store our instance of the TensorFlow Object Detection engine. */
     private TFObjectDetector tfod;
 
     @Override
     public void runOpMode() throws InterruptedException {
-
 
         AcRobot robot = new AcRobot();
 
@@ -51,13 +47,6 @@ public class blueWarehouseParkMain extends LinearOpMode {
 
         if (tfod != null) {
             tfod.activate();
-
-            // The TensorFlow software will scale the input images from the camera to a lower resolution.
-            // This can result in lower detection accuracy at longer distances (> 55cm or 22").
-            // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
-            // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
-            // should be set to the value of the images used to create the TensorFlow Object Detection model
-            // (typically 16/9).
             tfod.setZoom(1.0, 16.0 / 9.0);
         }
 
@@ -76,6 +65,8 @@ public class blueWarehouseParkMain extends LinearOpMode {
             telemetry.addData("Hub Level: ", hubLevel);
             telemetry.update();
 
+
+            /** Move arm to correct level **/
             robot.moveArmToLevel(hubLevel);
             int time = 0;
             boolean done = false;
@@ -89,6 +80,7 @@ public class blueWarehouseParkMain extends LinearOpMode {
                 }
             }
 
+            /** Drive to shipping hub **/
             robot.strafe(DistanceUnit.CM.fromInches(22), MOTOR_PWR);
             robot.drive(DistanceUnit.CM.fromInches(15), MOTOR_PWR);
 
@@ -103,6 +95,7 @@ public class blueWarehouseParkMain extends LinearOpMode {
                     done = true;
                 }
             }
+
             //turn of grabber
             robot.grabberMode = "idle";
             robot.update();
@@ -110,19 +103,16 @@ public class blueWarehouseParkMain extends LinearOpMode {
             //recalibrate arm
             robot.recalibrateArm();
 
+            /** Drive into warehouse **/
             robot.rotate(-90, MOTOR_PWR);
             robot.drive(DistanceUnit.CM.fromInches(64), 1);
         }
 
     }
 
-    /**
-     * Initialize the Vuforia localization engine.
-     */
+    //Initialize the Vuforia localization engine.
     private void initVuforia() {
-        /*
-         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
-         */
+        //Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = AcRobot.VUFORIA_KEY;
@@ -134,9 +124,7 @@ public class blueWarehouseParkMain extends LinearOpMode {
         // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
 
-    /**
-     * Initialize the TensorFlow Object Detection engine.
-     */
+    // Initialize TensorFlow Object Detection engine.
     private void initTfod() {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -151,21 +139,15 @@ public class blueWarehouseParkMain extends LinearOpMode {
 
     /* Method for locating duck, returns the hub level
     * Blue 2 center: 70-90
-    * Blue 3 center: 370-390
-     */
+    * Blue 3 center: 370-390 */
     private int locateDuck() {
 
         List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-
         int theHubLevel = 1;
 
-        // step through the list of recognitions and display boundary info.
+        // step through the list of recognitions and get boundary info.
         for (Recognition recognition : updatedRecognitions) {
-
-
             if (recognition.getLabel().equals("Duck")) {
-
-
                 double RECOGNITION_CENTER = (recognition.getLeft() + recognition.getRight()) / 2;
 
                 if (RECOGNITION_CENTER < 220) {
@@ -173,12 +155,12 @@ public class blueWarehouseParkMain extends LinearOpMode {
                 } else if (RECOGNITION_CENTER > 220) {
                     theHubLevel = 3;
                 }
+
                 telemetry.addLine("Duck Detected.");
                 telemetry.update();
             }
         }
 
         return theHubLevel;
-
     }
 }
