@@ -273,6 +273,7 @@ public class AcRobot {
         return radians * (180/pi);
     }
 
+    /*
     public void DriveTo(Vector position, double duration){
         DriveWithVelocity(Vector.normalize(position), 0, (int)(position.magnitude()/duration));
         sleep((long)duration*1000);
@@ -300,8 +301,10 @@ public class AcRobot {
         leftRear.setVelocity(0);
         rightRear.setVelocity(0);
     }
+    */
 
     // x and y are a vector direction
+    // For instance, you can input the gamepad joysticks in TeleOp to drive
     public void DRIVE(double x, double y, double rot){
         double r = Math.hypot(x, y);
         double robotAngle = Math.atan2(y, -x) - Math.PI / 4;
@@ -309,7 +312,7 @@ public class AcRobot {
         final double v1 = r * Math.cos(robotAngle) + rightX;
         final double v2 = r * Math.sin(robotAngle) - rightX;
         final double v3 = r * Math.sin(robotAngle) + rightX;
-        final double v4     = r * Math.cos(robotAngle) - rightX;
+        final double v4 = r * Math.cos(robotAngle) - rightX;
 
         if(slowMode){
             leftFront.setPower(v1*0.5);
@@ -327,7 +330,11 @@ public class AcRobot {
     }
 
 
-    /** strafe **/
+    /** strafe method
+     * @param cm    Distance the robot will strafe
+     * Positive values - Strafe right
+     * Negative values - Strafe left
+     * @param power    power given to the motors (robot will strafe the same distance no matter the power) **/
     public void strafe(double cm, double power) {
         double ticks = -cmToTick(cm)*strafeModifier;
         moveMotor(leftFront, (int)-ticks, power);
@@ -337,6 +344,11 @@ public class AcRobot {
         while(leftFront.isBusy() ||  rightFront.isBusy() || leftRear.isBusy() || rightRear.isBusy()) {}
     }
 
+    /** Drive method
+     * @param cm    Distance the robot will travel in cm
+     * positive values - Move forward
+     * negative values - Move backward
+     * @param power    Power given to motors (Robot will move the same distance no matter the motor power) */
     public void drive(double cm, double power) {
         double ticks = cmToTick(cm);
         moveMotor(leftFront, (int)ticks, power);
@@ -346,7 +358,11 @@ public class AcRobot {
         while(leftFront.isBusy() ||  rightFront.isBusy() || leftRear.isBusy() || rightRear.isBusy()) {}
     }
 
-    /** rotate **/
+    /** rotate method
+     * @param deg   The number of degrees the robot will rotate
+     * Positive values - rotate clockwise
+     * Negative vlues - rotate counterclockwise
+     * @param power    power given to motors(the robot will always rotate the same amount, no matter what the power) */
     public void rotate(double deg, double power) {
         double ticks = -cmToTick(rotationDistance/360*deg);
         moveMotor(leftFront, (int)-ticks, power);
@@ -356,15 +372,14 @@ public class AcRobot {
         while(leftFront.isBusy() ||  rightFront.isBusy() || leftRear.isBusy() || rightRear.isBusy()) {}
     }
 
-    //Used inside of autonomous drive methods
+    // Used inside of autonomous drive methods
+    // This calculates the target position for the encoder
     private void moveMotor(DcMotor motor, int ticks, double power) {
         int postion = motor.getCurrentPosition();
         motor.setTargetPosition(postion - ticks);
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motor.setPower(power);
     }
-
-
 
     // unit conversions
     public double inToCm(double in) { return in*2.54; }
