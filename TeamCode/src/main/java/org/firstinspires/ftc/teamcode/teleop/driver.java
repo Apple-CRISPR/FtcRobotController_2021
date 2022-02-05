@@ -95,7 +95,7 @@ public class driver extends OpMode
      */
     @Override
     public void loop() {
-        robot.DRIVE(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+        robot.Drive(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
         //AcRobot.DriveWithVelocity(new Vector(-1,0),0, 500);
 //        if(gamepad1.dpad_right){
 //            x+=1;
