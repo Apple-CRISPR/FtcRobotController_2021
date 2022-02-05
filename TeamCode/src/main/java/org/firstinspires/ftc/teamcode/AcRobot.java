@@ -69,7 +69,7 @@ public class AcRobot {
     public Arm arm = null;
 
     // shiping hub levels
-    private double levels[] = {216.2, 327.65, 482.75};
+    private double levels[] = {217, 327.65, 482.75};
 
     //offsets
     public double baseOffset = 130;
@@ -161,7 +161,7 @@ public class AcRobot {
         setArmPosition(new Vector(300, levels[level-1]));
     }
     public void moveToPickUpBlock(){
-        setArmPosition(new Vector(450, 200));
+        setArmPosition(new Vector(450, 225));
     }
     public void initAngleSoItNoBreak(){
         double x = -660;
@@ -181,7 +181,7 @@ public class AcRobot {
         armJoint.setPower(-0.25);
         armBase.setPower(-0.25);
         System.out.println(limitRear.getState());
-        while(!(limitRear.getState()&&limitRear.getState())){
+        while(!(limitRear.getState()&&upperArmFront.getState())){
             armBase.setPower(-0.25);
             armJoint.setPower(-0.25);
             if(limitRear.getState()) {
@@ -195,6 +195,8 @@ public class AcRobot {
         armBase.setPower(0);
         armBase.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armJoint.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        moveArmToLevel(1);
     }
 
     public void testJoint(double ticks){
