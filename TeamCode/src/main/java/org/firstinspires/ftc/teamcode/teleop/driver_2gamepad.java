@@ -34,7 +34,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.AcRobot;
-import org.firstinspires.ftc.teamcode.Testcode.AcRobot2;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -82,7 +81,7 @@ public class driver_2gamepad extends OpMode
     @Override
     public void loop() {
 
-        robot.DRIVE(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+        robot.Drive(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
 
         //slowmode toggle
         if(gamepad1.dpad_down){
@@ -93,39 +92,42 @@ public class driver_2gamepad extends OpMode
             robot.slowMode = false;
         }
 
-        if(gamepad2.x){
+        if (gamepad2.x) {
             robot.moveArmToLevel(1);
         }
-        if(gamepad2.y){
+        if (gamepad2.y) {
             robot.moveArmToLevel(2);
         }
-        if(gamepad2.b){
+        if (gamepad2.b) {
             robot.moveArmToLevel(3);
         }
-        if(gamepad2.a){
+        if (gamepad2.a) {
             robot.moveToPickUpBlock();
         }
-        if(gamepad2.right_trigger>0.5) {
+
+        if (gamepad2.right_trigger>0.5) {
             robot.grab();
-        } else if(gamepad2.left_trigger>0.5){
+        } else if (gamepad2.left_trigger>0.5) {
             robot.release();
         } else {
             robot.grabberMode = AcRobot.grabberStates.IDLE;
         }
         
-        if(gamepad2.left_bumper){
+        if(gamepad2.left_bumper) {
             robot.carousel.setPower(1);
-        }else if(gamepad2.right_bumper){
+        } else if(gamepad2.right_bumper) {
             robot.carousel.setPower(-1);
-        }else{
+        } else {
             robot.carousel.setPower(0);
         }
 
         robot.update();
+
         telemetry.addData("x: ", robot.arm.target.x);
         telemetry.addData("y: ", robot.arm.target.y);
         telemetry.addData("base: ", robot.arm.segments[0].setAngle);
         telemetry.addData("joint: ", robot.arm.segments[1].setAngle);
+        telemetry.update();
 
     }
 }
