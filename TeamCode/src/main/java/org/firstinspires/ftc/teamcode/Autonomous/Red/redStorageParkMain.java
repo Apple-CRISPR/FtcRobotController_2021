@@ -88,9 +88,11 @@ public class redStorageParkMain extends LinearOpMode {
             time = 0;
             done = false;
             while(!done) {
+
+                robot.release();
                 robot.update();
                 time++;
-                robot.release();
+
                 if(time>100){
                     done = true;
                 }
@@ -101,9 +103,9 @@ public class redStorageParkMain extends LinearOpMode {
             robot.rotate(90, MOTOR_PWR);
             robot.drive(-52, MOTOR_PWR);
 
+
             /** Park */
         }
-
     }
 
     // Initialize the Vuforia localization engine

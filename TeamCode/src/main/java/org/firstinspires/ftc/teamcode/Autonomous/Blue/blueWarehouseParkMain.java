@@ -88,20 +88,23 @@ public class blueWarehouseParkMain extends LinearOpMode {
             time = 0;
             done = false;
             while(!done) {
+
+                robot.release();
                 robot.update();
                 time++;
-                robot.release();
+
                 if(time>100){
                     done = true;
                 }
             }
 
-            //turn of grabber
-            robot.grabberMode = "idle";
+            //turn off grabber
+            robot.grabberMode = AcRobot.grabberStates.IDLE;
+            robot.moveArmToLevel(1);
             robot.update();
 
             //recalibrate arm
-            robot.recalibrateArm();
+            //robot.recalibrateArm();
 
             /** Drive into warehouse **/
             robot.rotate(-90, MOTOR_PWR);

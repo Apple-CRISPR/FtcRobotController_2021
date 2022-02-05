@@ -96,6 +96,10 @@ public class redWarehouseParkMain extends LinearOpMode {
                 }
             }
 
+            robot.grabberMode = AcRobot.grabberStates.IDLE;
+            robot.moveArmToLevel(1);
+            robot.update();
+
             // Where recalibration will go
 
             robot.rotate(90, MOTOR_PWR);

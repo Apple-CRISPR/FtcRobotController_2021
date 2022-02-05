@@ -34,7 +34,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.AcRobot;
-import org.firstinspires.ftc.teamcode.math.Vector;
+import org.firstinspires.ftc.teamcode.Testcode.AcRobot2;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -50,20 +50,16 @@ import org.firstinspires.ftc.teamcode.math.Vector;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="driver control", group="Iterative Opmode")
-//@Disabled
-public class driver extends OpMode
+@TeleOp(name="drivercontrol_2gamepad", group="TeleOp")
+public class driver_2gamepad extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private AcRobot robot = new AcRobot();
 
-    /*
-     * Code to run ONCE when the driver hits INIT
-     */
+    // Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
-        telemetry.addData("Status", "Initialized");
 
         robot.initHardware(hardwareMap);
         robot.moveArmToLevel(1);
@@ -71,95 +67,65 @@ public class driver extends OpMode
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
 
-//        Recorder rec = new Recorder();
-//        rec.Play();
+        //Recorder rec = new Recorder();
+        //rec.Play();
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
-     */
-    @Override
-    public void init_loop() {
-    }
 
-    /*
-     * Code to run ONCE when the driver hits PLAY
-     */
+    //Code to run ONCE when the driver hits PLAY
     @Override
     public void start() {
         runtime.reset();
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
-     */
+    //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
     @Override
     public void loop() {
-        robot.DRIVE(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
-        //AcRobot.DriveWithVelocity(new Vector(-1,0),0, 500);
-//        if(gamepad1.dpad_right){
-//            x+=1;
-//        }else if(gamepad1.dpad_left){
-//            x-=1;
-//        }
-//
-//        if(gamepad1.dpad_up){
-//            y+=1;
-//        }else if(gamepad1.dpad_down) {
-//            y -= 1;
-//        }
 
-        if(gamepad1.x){
+        robot.DRIVE(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+
+        //slowmode toggle
+        if(gamepad1.dpad_down){
+
+            robot.slowMode = true;
+        } else if (gamepad1.dpad_up){
+
+            robot.slowMode = false;
+        }
+
+        if(gamepad2.x){
             robot.moveArmToLevel(1);
         }
-        if(gamepad1.y){
+        if(gamepad2.y){
             robot.moveArmToLevel(2);
         }
-        if(gamepad1.b){
+        if(gamepad2.b){
             robot.moveArmToLevel(3);
         }
-        if(gamepad1.a){
+        if(gamepad2.a){
             robot.moveToPickUpBlock();
         }
-
-        if(gamepad1.right_trigger>0.5) {
+        if(gamepad2.right_trigger>0.5) {
             robot.grab();
-        } else if (gamepad1.left_trigger>0.5){
+        } else if(gamepad2.left_trigger>0.5){
             robot.release();
-        }
-        /* else {
+        } else {
             robot.grabberMode = AcRobot.grabberStates.IDLE;
-        } */
+        }
         
-        if(gamepad1.left_bumper){
-            robot.carousel.setPower(0.75);
-        }else if(gamepad1.right_bumper){
-            robot.carousel.setPower(-0.75);
+        if(gamepad2.left_bumper){
+            robot.carousel.setPower(1);
+        }else if(gamepad2.right_bumper){
+            robot.carousel.setPower(-1);
         }else{
             robot.carousel.setPower(0);
         }
-        //slowmode toggle
-        if(gamepad1.dpad_down){
-            robot.slowMode = true;
-        }else if(gamepad1.dpad_up){
-            robot.slowMode = false;
-        }
-        //robot.setArmPosition(new Vector(x, y));
-        //System.out.println(x);
+
         robot.update();
         telemetry.addData("x: ", robot.arm.target.x);
         telemetry.addData("y: ", robot.arm.target.y);
         telemetry.addData("base: ", robot.arm.segments[0].setAngle);
         telemetry.addData("joint: ", robot.arm.segments[1].setAngle);
-        //robot.setArmAngle(128,100);
-        //System.out.println("x: "+x+" y:"+y);
-    }
 
-    /*
-     * Code to run ONCE after the driver hits STOP
-     */
-    @Override
-    public void stop() {
     }
-
 }

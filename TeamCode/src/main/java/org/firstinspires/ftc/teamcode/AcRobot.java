@@ -29,14 +29,20 @@ public class AcRobot {
     public static final double mmPerTick = (Math.PI*wheelDiameter)/encoderResolution;
     public static final double autoMotorPower = 0.4;
 
+    //Possible states of the grabber: Grabbing, Releasing, Idle
+    public enum grabberStates {
+        GRABBING, IDLE, RELEASING;
+    }
+
+    //Grabber variables
+    public grabberStates grabberMode = grabberStates.IDLE;
+    public int grabTime;
 
     // movement
     public DcMotorEx leftFront = null;
     public DcMotorEx rightFront = null;
     public DcMotorEx leftRear = null;
     public DcMotorEx rightRear = null;
-
-    // DcMotor
 
     //arm motors
     public DcMotorEx armJoint = null;
@@ -45,21 +51,25 @@ public class AcRobot {
     // DcMotor (Carousel spinner)
     public DcMotor carousel = null;
 
+    //Touch Sensor for the grabber
     public DigitalChannel grabberTouch = null;
+
+    //Limit switches (For the lower segment)
     public DigitalChannel limitFront = null;
     public DigitalChannel limitRear = null;
 
+    //Limit switches (For the upper segment
     public DigitalChannel upperArmFront = null;
     public DigitalChannel upperArmRear = null;
 
-    /* servos */
+    // servos
     public CRServo grabberRight = null;
     public CRServo grabberLeft = null;
 
     public Arm arm = null;
 
     // shiping hub levels
-    private double levels[] = {226.2, 327.65, 482.75};
+    private double levels[] = {216.2, 327.65, 482.75};
 
     //offsets
     public double baseOffset = 130;
@@ -67,9 +77,6 @@ public class AcRobot {
 
     public boolean slowMode = false;
 
-    //Grabber code variables
-    public String grabberMode = "idle";
-    public int grabTime = 0;
 
     public static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
     public static final String[] LABELS = {
@@ -149,12 +156,7 @@ public class AcRobot {
         // set arm segment starting positions
         initAngleSoItNoBreak();
     }
-    public void grab(){
-        grabberMode = "grabbing";
-    }
-    public void release(){
-        grabberMode = "releasing";
-    }
+
     public void moveArmToLevel(int level){
         setArmPosition(new Vector(300, levels[level-1]));
     }
@@ -205,19 +207,20 @@ public class AcRobot {
         // move arm motors
         setArmAngle(arm.segments[0].setAngle, -arm.segments[1].setAngle);
     }
+
     public void updateGrabber(){
-        if(grabberMode.equals("grabbing")) {
+        if(grabberMode.equals(grabberStates.GRABBING)) {
             if (grabberTouch.getState()) {
-                grabberLeft.setPower(1);
-                grabberRight.setPower(1);
+                grabberLeft.setPower(-1);
+                grabberRight.setPower(-1);
             }else{
                 grabberLeft.setPower(0);
                 grabberRight.setPower(0);
-                grabberMode = "idle";
+                grabberMode = grabberStates.IDLE;
             }
-        }else if(grabberMode.equals("releasing")){
-            grabberLeft.setPower(-1);
-            grabberRight.setPower(-1);
+        }else if(grabberMode.equals(grabberStates.RELEASING)){
+            grabberLeft.setPower(1);
+            grabberRight.setPower(1);
             grabTime =+ 4;
         }else{
             grabberLeft.setPower(0);
@@ -225,9 +228,17 @@ public class AcRobot {
         }
         if(grabTime>100){
             grabTime = 0;
-            grabberMode = "idle";
+            grabberMode = grabberStates.IDLE;
         }
     }
+
+    public void grab(){
+        grabberMode = grabberStates.GRABBING;
+    }
+    public void release(){
+        grabberMode = grabberStates.RELEASING;
+    }
+
     public void setArmAngle(double lowerAngle, double upperAngle){
         double basePos = ToTicks(lowerAngle, Constants.motor5202TPR);
         double jointPos = ToTicks(upperAngle, Constants.motor5202TPR);
@@ -306,6 +317,7 @@ public class AcRobot {
     // x and y are a vector direction
     // For instance, you can input the gamepad joysticks in TeleOp to drive
     public void DRIVE(double x, double y, double rot){
+
         double r = Math.hypot(x, y);
         double robotAngle = Math.atan2(y, -x) - Math.PI / 4;
         double rightX = -rot;
@@ -329,28 +341,15 @@ public class AcRobot {
 
     }
 
-
-    /** strafe method
-     * @param cm    Distance the robot will strafe
-     * Positive values - Strafe right
-     * Negative values - Strafe left
-     * @param power    power given to the motors (robot will strafe the same distance no matter the power) **/
-    public void strafe(double cm, double power) {
-        double ticks = -cmToTick(cm)*strafeModifier;
-        moveMotor(leftFront, (int)-ticks, power);
-        moveMotor(rightFront, (int)ticks, power);
-        moveMotor(leftRear, (int)ticks, power);
-        moveMotor(rightRear, (int)-ticks, power);
-        while(leftFront.isBusy() ||  rightFront.isBusy() || leftRear.isBusy() || rightRear.isBusy()) {}
-    }
-
     /** Drive method
      * @param cm    Distance the robot will travel in cm
      * positive values - Move forward
      * negative values - Move backward
      * @param power    Power given to motors (Robot will move the same distance no matter the motor power) */
     public void drive(double cm, double power) {
+
         double ticks = cmToTick(cm);
+
         moveMotor(leftFront, (int)ticks, power);
         moveMotor(rightFront, (int)ticks, power);
         moveMotor(leftRear, (int)ticks, power);
@@ -358,13 +357,32 @@ public class AcRobot {
         while(leftFront.isBusy() ||  rightFront.isBusy() || leftRear.isBusy() || rightRear.isBusy()) {}
     }
 
+    /** strafe method
+     * @param cm    Distance the robot will strafe
+     * Positive values - Strafe right
+     * Negative values - Strafe left
+     * @param power    power given to the motors (robot will strafe the same distance no matter the power) **/
+    public void strafe(double cm, double power) {
+
+        double ticks = -cmToTick(cm)*strafeModifier;
+
+        moveMotor(leftFront, (int)-ticks, power);
+        moveMotor(rightFront, (int)ticks, power);
+        moveMotor(leftRear, (int)ticks, power);
+        moveMotor(rightRear, (int)-ticks, power);
+        while(leftFront.isBusy() ||  rightFront.isBusy() || leftRear.isBusy() || rightRear.isBusy()) {}
+    }
+
+
     /** rotate method
      * @param deg   The number of degrees the robot will rotate
      * Positive values - rotate clockwise
      * Negative vlues - rotate counterclockwise
      * @param power    power given to motors(the robot will always rotate the same amount, no matter what the power) */
     public void rotate(double deg, double power) {
+
         double ticks = -cmToTick(rotationDistance/360*deg);
+
         moveMotor(leftFront, (int)-ticks, power);
         moveMotor(rightFront, (int)ticks, power);
         moveMotor(leftRear, (int)-ticks, power);
@@ -375,7 +393,9 @@ public class AcRobot {
     // Used inside of autonomous drive methods
     // This calculates the target position for the encoder
     private void moveMotor(DcMotor motor, int ticks, double power) {
+
         int postion = motor.getCurrentPosition();
+
         motor.setTargetPosition(postion - ticks);
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motor.setPower(power);
