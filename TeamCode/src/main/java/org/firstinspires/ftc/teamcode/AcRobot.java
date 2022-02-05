@@ -175,10 +175,23 @@ public class AcRobot {
         }
     }
     public void recalibrateArm(){
-        setArmAngle(122, -148);
+        armBase.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        armJoint.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        armJoint.setPower(-0.25);
+        armBase.setPower(-0.25);
+        System.out.println(limitRear.getState());
+        while(!(limitRear.getState()&&limitRear.getState())){
+            armBase.setPower(-0.25);
+            armJoint.setPower(-0.25);
+            if(limitRear.getState()) {
+                armBase.setPower(0);
+            }
+            if(upperArmFront.getState()) {
+                armJoint.setPower(0);
+            }
+        }
         armJoint.setPower(0);
         armBase.setPower(0);
-        sleep(100);
         armBase.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armJoint.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
@@ -301,9 +314,9 @@ public class AcRobot {
         leftRear.setVelocity(0);
         rightRear.setVelocity(0);
     }
-
     // x and y are a vector direction
-    public void DRIVE(double x, double y, double rot){
+    // rot will rotate the robot
+    public void Drive(double x, double y, double rot){
         double r = Math.hypot(x, y);
         double robotAngle = Math.atan2(y, -x) - Math.PI / 4;
         double rightX = -rot;
