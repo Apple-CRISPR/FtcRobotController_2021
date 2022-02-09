@@ -1,0 +1,139 @@
+package org.firstinspires.ftc.teamcode.Testcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
+import java.util.List;
+
+@Autonomous(name = "tensorFlowAutoTester", group = "Autonomous")
+
+public class tensorFlowAutoTester extends LinearOpMode {
+
+    private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
+    private static final String[] LABELS = {
+            "Ball",
+            "Cube",
+            "Duck",
+            "Marker"
+    };
+
+
+    private static final String VUFORIA_KEY =
+            "ASqpJr7/////AAABmUVwKJGyqUYXglgkc+gVFKaMDJvVe1kCbfQEOluUHsrX0uw34sWuJRkDlw6hPRpC4eu08HxrIDCThmAlBj8A"
+                    + "/Mjvlve5ieeCVQ6yPoz01voa9FUrsR4pfYrM9n6CtqC2a8DXN0nFfFR0maREQO0csOige5xAxVWPpg3RUEUt9Ncs/7EQ8FG"
+                    + "50IFy7GqykqK2C3r73em1a2w9rsCwYHghJN5/dR44OEd6GWVQIRErDeXvuSuhVLJFjnvaHJhm3QG6rOH+uE+8/YI+imlImad21HyBdTb53q6E0IWpv" +
+                    "OVfC1AtX9MFgJIn6diRyp1Q0ULp7K6KHyzRlD/5b+bgKesqw1yFyb/jdSkJMiojDEWt4a8F";
+
+    /**
+     * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
+     * localization engine.
+     */
+    private VuforiaLocalizer vuforia;
+
+    /**
+     * {@link #tfod} is the variable we will use to store our instance of the TensorFlow Object
+     * Detection engine.
+     */
+    private TFObjectDetector tfod;
+
+    private int hubLevel = 0;
+
+    @Override
+    public void runOpMode() {
+        // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
+        // first.
+        initVuforia();
+        initTfod();
+
+        /**
+         * Activate TensorFlow Object Detection before we wait for the start command.
+         * Do it here so that the Camera Stream window will have the TensorFlow annotations visible.
+         **/
+        if (tfod != null) {
+            tfod.activate();
+
+            tfod.setZoom(1.0, 16.0 / 9.0);
+        }
+
+        /** Wait for the game to begin */
+        telemetry.addData(">", "Press Play to start op mode");
+        telemetry.update();
+
+        waitForStart();
+
+        while (opModeIsActive()) {
+
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+            int theHubLevel = 1;
+
+            // step through the list of recognitions and display boundary info.
+            for (Recognition recognition : updatedRecognitions) {
+
+
+                if (recognition.getLabel().equals("Duck")) {
+
+
+                    double RECOGNITION_CENTER = (recognition.getLeft() + recognition.getRight()) / 2;
+
+                    if (RECOGNITION_CENTER < 450) {
+                        theHubLevel = 2;
+                    } else if (RECOGNITION_CENTER > 450) {
+                        theHubLevel = 3;
+                    }
+                    telemetry.addLine("Duck Detected.");
+                    telemetry.addData("Hub level: ", theHubLevel);
+                    telemetry.update();
+
+                }
+
+            }
+
+        }
+
+            sleep(5000);
+            if (isStopRequested()) {
+                if (tfod != null) {
+                    tfod.shutdown();
+                }
+            }
+
+        }
+
+    /**
+     * Initialize the Vuforia localization engine.
+     */
+    private void initVuforia () {
+        /*
+         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+         */
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "webcam");
+
+        //  Instantiate the Vuforia engine
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        // Loading trackables is not necessary for the TensorFlow Object Detection engine.
+    }
+
+    /**
+     * Initialize the TensorFlow Object Detection engine.
+     */
+    private void initTfod () {
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.6f;
+        tfodParameters.isModelTensorFlow2 = true;
+        tfodParameters.inputSize = 320;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
+    }
+}

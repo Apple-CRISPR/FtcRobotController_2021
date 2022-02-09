@@ -160,9 +160,11 @@ public class AcRobot {
     public void moveArmToLevel(int level){
         setArmPosition(new Vector(300, levels[level-1]));
     }
+
     public void moveToPickUpBlock(){
-        setArmPosition(new Vector(450, 225));
+        setArmPosition(new Vector(450, 208));
     }
+
     public void initAngleSoItNoBreak(){
         double x = -660;
         double y = 364;

@@ -81,6 +81,7 @@ public class driver_2gamepad extends OpMode
     @Override
     public void loop() {
 
+        //Driving with gamepad1
         robot.Drive(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
 
         //slowmode toggle
@@ -92,6 +93,7 @@ public class driver_2gamepad extends OpMode
             robot.slowMode = false;
         }
 
+        //Move arm to different levels using gamepad2
         if (gamepad2.x) {
             robot.moveArmToLevel(1);
         }
@@ -105,6 +107,7 @@ public class driver_2gamepad extends OpMode
             robot.moveToPickUpBlock();
         }
 
+        //Grab and release with the grabber
         if (gamepad2.right_trigger>0.5) {
             robot.grab();
         } else if (gamepad2.left_trigger>0.5) {
@@ -112,7 +115,8 @@ public class driver_2gamepad extends OpMode
         } else {
             robot.grabberMode = AcRobot.grabberStates.IDLE;
         }
-        
+
+        //Spin carousel
         if(gamepad2.left_bumper) {
             robot.carousel.setPower(1);
         } else if(gamepad2.right_bumper) {
@@ -122,6 +126,10 @@ public class driver_2gamepad extends OpMode
         }
 
         robot.update();
+
+        if(gamepad2.dpad_up) {
+            robot.recalibrateArm();
+        }
 
         telemetry.addData("x: ", robot.arm.target.x);
         telemetry.addData("y: ", robot.arm.target.y);
