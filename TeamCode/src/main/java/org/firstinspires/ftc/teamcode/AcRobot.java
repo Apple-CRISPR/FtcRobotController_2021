@@ -59,7 +59,7 @@ public class AcRobot {
     public Arm arm = null;
 
     // shiping hub levels
-    private double levels[] = {226.2, 327.65, 482.75};
+    private double levels[] = {186.2, 327.65, 502.75};
 
     //offsets
     public double baseOffset = 130;
@@ -160,7 +160,7 @@ public class AcRobot {
         setArmPosition(new Vector(300, levels[level-1]));
     }
     public void moveToPickUpBlock(){
-        setArmPosition(new Vector(450, 200));
+        setArmPosition(new Vector(450, 220));
     }
     public void initAngleSoItNoBreak(){
         double x = -660;

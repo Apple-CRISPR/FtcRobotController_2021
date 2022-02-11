@@ -143,10 +143,10 @@ public class driver extends OpMode
         //robot.setArmPosition(new Vector(x, y));
         //System.out.println(x);
         robot.update();
-        telemetry.addData("x: ", robot.arm.target.x);
-        telemetry.addData("y: ", robot.arm.target.y);
-        telemetry.addData("base: ", robot.arm.segments[0].setAngle);
-        telemetry.addData("joint: ", robot.arm.segments[1].setAngle);
+//        telemetry.addData("x: ", robot.arm.target.x);
+//        telemetry.addData("y: ", robot.arm.target.y);
+//        telemetry.addData("base: ", robot.arm.segments[0].setAngle);
+//        telemetry.addData("joint: ", robot.arm.segments[1].setAngle);
         //robot.setArmAngle(128,100);
         //System.out.println("x: "+x+" y:"+y);
     }
